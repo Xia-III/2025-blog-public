@@ -10,7 +10,7 @@ function handle401Error(): void {
 	try {
 		useAuthStore.getState().clearAuth()
 	} catch (error) {
-		console.error('Failed to clear auth cache:', error)
+		console.error('Failed to clear auth cache:', error) 
 	}
 }
 
@@ -56,7 +56,8 @@ export async function createInstallationToken(jwt: string, installationId: numbe
 }
 
 export async function getFileSha(token: string, owner: string, repo: string, path: string, branch: string): Promise<string | undefined> {
-	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`, {
+	// 使用未编码的路径
+	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 			Accept: 'application/vnd.github+json',
@@ -72,7 +73,7 @@ export async function getFileSha(token: string, owner: string, repo: string, pat
 
 export async function putFile(token: string, owner: string, repo: string, path: string, contentBase64: string, message: string, branch: string) {
 	const sha = await getFileSha(token, owner, repo, path, branch)
-	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}`, {
+	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${path}?ref=${branch}`, {
 		method: 'PUT',
 		headers: {
 			Authorization: `Bearer ${token}`,
@@ -80,7 +81,7 @@ export async function putFile(token: string, owner: string, repo: string, path: 
 			'X-GitHub-Api-Version': '2022-11-28',
 			'Content-Type': 'application/json'
 		},
-		body: JSON.stringify({ message, content: contentBase64, branch, ...(sha ? { sha } : {}) })
+		body: JSON.stringify({ message, content: contentBase64, ...(sha ? { sha } : {}) })
 	})
 	if (res.status === 401) handle401Error()
 	if (!res.ok) throw new Error(`put file failed: ${res.status}`)
@@ -163,7 +164,8 @@ export async function updateRef(token: string, owner: string, repo: string, ref:
 }
 
 export async function readTextFileFromRepo(token: string, owner: string, repo: string, path: string, ref: string): Promise<string | null> {
-	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(ref)}`, {
+	// 使用未编码的路径和分支引用
+	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${path}?ref=${ref}`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 			Accept: 'application/vnd.github+json',
@@ -184,7 +186,8 @@ export async function readTextFileFromRepo(token: string, owner: string, repo: s
 
 export async function listRepoFilesRecursive(token: string, owner: string, repo: string, path: string, ref: string): Promise<string[]> {
 	async function fetchPath(targetPath: string): Promise<string[]> {
-		const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${encodeURIComponent(targetPath)}?ref=${encodeURIComponent(ref)}`, {
+		// 使用未编码的路径
+		const res = await fetch(`${GH_API}/repos/${owner}/${repo}/contents/${targetPath}?ref=${ref}`, {
 			headers: {
 				Authorization: `Bearer ${token}`,
 				Accept: 'application/vnd.github+json',
