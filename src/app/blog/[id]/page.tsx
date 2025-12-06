@@ -1,85 +1,96 @@
-import { notFound } from 'next/navigation'
-import { loadBlog, type BlogConfig } from '@/lib/load-blog'
-import { BlogPreview } from '@/components/blog-preview'
-import LiquidGrass from '@/components/liquid-grass'
+'use client'
+
+import { useEffect, useMemo, useState } from 'react'
+import { useParams, useRouter } from 'next/navigation'
+import dayjs from 'dayjs'
 import { motion } from 'motion/react'
-import Link from 'next/link'
+import { BlogPreview } from '@/components/blog-preview'
+import { loadBlog, type BlogConfig } from '@/lib/load-blog'
+import { useReadArticles } from '@/hooks/use-read-articles'
+import LiquidGrass from '@/components/liquid-grass'
 
-// 静态生成所有可能的博客ID
-export async function generateStaticParams() {
-  try {
-    // 在构建时获取所有博客文章的列表
-    const res = await fetch(`${process.env.VERCEL_URL || 'http://localhost:2025'}/blogs/index.json`, {
-      cache: 'no-store'
-    })
+export default function Page() {
+	const params = useParams() as { id?: string | string[] }
+	const slug = Array.isArray(params?.id) ? params.id[0] : params?.id || ''
+	const router = useRouter()
+	const { markAsRead } = useReadArticles()
 
-    if (!res.ok) {
-      console.error('Failed to fetch blog index for static generation')
-      return []
-    }
+	const [blog, setBlog] = useState<{ config: BlogConfig; markdown: string; cover?: string } | null>(null)
+	const [error, setError] = useState<string | null>(null)
+	const [loading, setLoading] = useState<boolean>(true)
 
-    const blogs: Array<{ slug: string }> = await res.json()
+	useEffect(() => {
+		let cancelled = false
+		async function run() {
+			if (!slug) return
+			try {
+				setLoading(true)
+				const blogData = await loadBlog(slug)
 
-    // 为每个博客生成一个静态参数
-    return blogs.map((blog) => ({
-      id: blog.slug,
-    }))
-  } catch (error) {
-    console.error('Error generating static params:', error)
-    return []
-  }
-}
+				if (!cancelled) {
+					setBlog(blogData)
+					setError(null)
+					markAsRead(slug)
+				}
+			} catch (e: any) {
+				if (!cancelled) setError(e?.message || '加载失败')
+			} finally {
+				if (!cancelled) setLoading(false)
+			}
+		}
+		run()
+		return () => {
+			cancelled = true
+		}
+	}, [slug, markAsRead])
 
-export default async function Page({ params }: { params: { id: string } }) {
-  const slug = params.id
+	const title = useMemo(() => (blog?.config.title ? blog.config.title : slug), [blog?.config.title, slug])
+	const date = useMemo(() => dayjs(blog?.config.date).format('YYYY年 M月 D日'), [blog?.config.date])
+	const tags = blog?.config.tags || []
 
-  // 服务器端获取博客数据
-  let blogData: { config: BlogConfig; markdown: string; cover?: string } | null = null
-  let error: string | null = null
+	const handleEdit = () => {
+		router.push(`/write/${slug}`)
+	}
 
-  try {
-    blogData = await loadBlog(slug)
-  } catch (e: any) {
-    error = e?.message || '加载失败'
-  }
+	if (!slug) {
+		return <div className='text-secondary flex h-full items-center justify-center text-sm'>无效的链接</div>
+	}
 
-  if (error) {
-    return <div className='flex h-full items-center justify-center text-sm text-red-500'>{error}</div>
-  }
+	if (loading) {
+		return <div className='text-secondary flex h-full items-center justify-center text-sm'>加载中...</div>
+	}
 
-  if (!blogData) {
-    notFound() // 返回 404 页面
-  }
+	if (error) {
+		return <div className='flex h-full items-center justify-center text-sm text-red-500'>{error}</div>
+	}
 
-  const title = blogData.config.title ? blogData.config.title : slug
-  const { format } = await import('date-fns')
-  const date = blogData.config.date ? format(new Date(blogData.config.date), 'yyyy年 M月 d日') : ''
-  const tags = blogData.config.tags || []
+	if (!blog) {
+		return <div className='text-secondary flex h-full items-center justify-center text-sm'>文章不存在</div>
+	}
 
-  return (
-    <>
-      <BlogPreview
-        markdown={blogData.markdown}
-        title={title}
-        tags={tags}
-        date={date}
-        summary={blogData.config.summary}
-        cover={blogData.cover ? `${origin}${blogData.cover}` : undefined}
-        slug={slug}
-      />
+	return (
+		<>
+			<BlogPreview
+				markdown={blog.markdown}
+				title={title}
+				tags={tags}
+				date={date}
+				summary={blog.config.summary}
+				cover={blog.cover ? `${origin}${blog.cover}` : undefined}
+				slug={slug}
+			/>
 
-      <motion.button
-        initial={{ opacity: 0, scale: 0.6 }}
-        animate={{ opacity: 1, scale: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        onClick={() => {}}
-        className='absolute top-4 right-6 rounded-xl border bg-white/60 px-6 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-white/80 max-sm:hidden'>
-        {/* 在静态版本中，编辑按钮链接到编辑页面 */}
-        <Link href={`/write/${slug}`}>编辑</Link>
-      </motion.button>
+			<motion.button
+				initial={{ opacity: 0, scale: 0.6 }}
+				animate={{ opacity: 1, scale: 1 }}
+				whileHover={{ scale: 1.05 }}
+				whileTap={{ scale: 0.95 }}
+				onClick={handleEdit}
+				className='absolute top-4 right-6 rounded-xl border bg-white/60 px-6 py-2 text-sm backdrop-blur-sm transition-colors hover:bg-white/80 max-sm:hidden'>
+				编辑
+			</motion.button>
 
-      {slug === 'liquid-grass' && <LiquidGrass />}
-    </>
-  )
+			{slug === 'liquid-grass' && <LiquidGrass />}
+		</>
+	)
 }
