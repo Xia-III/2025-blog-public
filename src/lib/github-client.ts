@@ -90,7 +90,8 @@ export async function putFile(token: string, owner: string, repo: string, path: 
 // Batch commit APIs
 
 export async function getRef(token: string, owner: string, repo: string, ref: string): Promise<{ sha: string }> {
-	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/git/ref/${encodeURIComponent(ref)}`, {
+	// 不添加 refs/ 前缀，让调用方提供完整的引用格式
+	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/git/refs/${ref}`, {
 		headers: {
 			Authorization: `Bearer ${token}`,
 			Accept: 'application/vnd.github+json',
@@ -146,7 +147,8 @@ export async function createCommit(token: string, owner: string, repo: string, m
 }
 
 export async function updateRef(token: string, owner: string, repo: string, ref: string, sha: string, force = false): Promise<void> {
-	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/git/refs/${encodeURIComponent(ref)}`, {
+	// 不添加 refs/ 前缀，让调用方提供完整的引用格式
+	const res = await fetch(`${GH_API}/repos/${owner}/${repo}/git/refs/${ref}`, {
 		method: 'PATCH',
 		headers: {
 			Authorization: `Bearer ${token}`,
