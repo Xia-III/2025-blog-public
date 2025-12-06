@@ -9,34 +9,40 @@ import { WriteSidebar } from '../components/sidebar'
 import { WriteActions } from '../components/actions'
 import { WritePreview } from '../components/preview'
 
+// 为静态导出指定动态参数
+export async function generateStaticParams() {
+  // 对于编辑页面，我们不预生成任何静态页面，因为这是客户端功能
+  return []
+}
+
 export default function EditBlogPage() {
-	const params = useParams() as { slug?: string }
-	const slug = params?.slug || ''
+  const params = useParams() as { slug?: string }
+  const slug = params?.slug || ''
 
-	const { form, cover } = useWriteStore()
-	const { isPreview, closePreview } = usePreviewStore()
-	const { loading } = useLoadBlog(slug)
+  const { form, cover } = useWriteStore()
+  const { isPreview, closePreview } = usePreviewStore()
+  const { loading } = useLoadBlog(slug)
 
-	const coverPreviewUrl = cover ? (cover.type === 'url' ? cover.url : cover.previewUrl) : null
+  const coverPreviewUrl = cover ? (cover.type === 'url' ? cover.url : cover.previewUrl) : null
 
-	if (loading) {
-		return <div className='text-secondary flex h-screen items-center justify-center text-sm'>加载中...</div>
-	}
+  if (loading) {
+    return <div className='text-secondary flex h-screen items-center justify-center text-sm'>加载中...</div>
+  }
 
-	if (!slug) {
-		return <div className='flex h-screen items-center justify-center text-sm text-red-500'>无效的博客 ID</div>
-	}
+  if (!slug) {
+    return <div className='flex h-screen items-center justify-center text-sm text-red-500'>无效的博客 ID</div>
+  }
 
-	return isPreview ? (
-		<WritePreview form={form} coverPreviewUrl={coverPreviewUrl} onClose={closePreview} slug={slug} />
-	) : (
-		<>
-			<div className='flex h-full justify-center gap-6 px-6 pt-24 pb-12'>
-				<WriteEditor />
-				<WriteSidebar />
-			</div>
+  return isPreview ? (
+    <WritePreview form={form} coverPreviewUrl={coverPreviewUrl} onClose={closePreview} slug={slug} />
+  ) : (
+    <>
+      <div className='flex h-full justify-center gap-6 px-6 pt-24 pb-12'>
+        <WriteEditor />
+        <WriteSidebar />
+      </div>
 
-			<WriteActions />
-		</>
-	)
+      <WriteActions />
+    </>
+  )
 }
