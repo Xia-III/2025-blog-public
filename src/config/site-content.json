@@ -4,20 +4,22 @@
 		"description": "记录开发、探索笔记。前端 UI 更新代码仓库。"
 	},
 	"theme": {
-		"colorBrand": "#122DEB",
-		"colorPrimary": "#4E3F42",
+		"colorBrand": "#35bfab",
+		"colorPrimary": "#334f52",
 		"colorSecondary": "#7b888e",
-		"colorBrandSecondary": "#FCC841",
+		"colorBrandSecondary": "#1fc9e7",
 		"colorBg": "#eeeeee",
 		"colorBorder": "#ffffff",
 		"colorCard": "#ffffff66",
 		"colorArticle": "#ffffffcc"
 	},
 	"backgroundColors": [
-		"#8EFE80",
-		"#AC96BE",
-		"#32A6A5",
-		"#F6E4A9"
+		"#EDDD62",
+		"#9EE7D1",
+		"#84D68A",
+		"#EDDD62",
+		"#88E6E5",
+		"#a7f3d0"
 	],
 	"artImages": [
 		{
