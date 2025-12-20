@@ -70,7 +70,7 @@
 	{
 		"name": "Music",
 		"year": 2025,
-		"image": "/images/project/3bedd1e68c186f31.webp",
+		"image": "blob:https://xiaoxia.netlify.app/86025639-2bab-4291-8c4b-275f96b2d253",
 		"url": "http://101.200.231.100:8015/",
 		"description": "写的一个简易听歌页面，主要适应移动端",
 		"tags": [
