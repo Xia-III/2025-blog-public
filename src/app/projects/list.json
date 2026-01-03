@@ -70,11 +70,22 @@
 	{
 		"name": "Music",
 		"year": 2025,
-		"image": "http://101.200.231.100:8011/image/fAbU6wD3s.webp",
+		"image": "/images/project/3bedd1e68c186f31.webp",
 		"url": "http://101.200.231.100:8015/",
 		"description": "写的一个简易听歌页面，主要适应移动端",
 		"tags": [
 			"Vue"
 		]
+	},
+	{
+		"name": "线上文件",
+		"year": 2026,
+		"image": "blob:https://xiaoxia.netlify.app/602c0555-5ad5-4572-aaca-752fdaa2cf80",
+		"url": "http://101.200.231.100:8011",
+		"description": "通过部署开源项目HFS在服务器中，公网IP端口对外开放实现线上文件管理",
+		"tags": [
+			"HFS"
+		],
+		"github": "https://github.com/rejetto/hfs"
 	}
 ]
