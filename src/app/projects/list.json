@@ -80,7 +80,7 @@
 	{
 		"name": "线上文件",
 		"year": 2026,
-		"image": "blob:https://xiaoxia.netlify.app/602c0555-5ad5-4572-aaca-752fdaa2cf80",
+		"image": "/images/project/9b887fa554115766.jpg",
 		"url": "http://101.200.231.100:8011",
 		"description": "通过部署开源项目HFS在服务器中，公网IP端口对外开放实现线上文件管理",
 		"tags": [
